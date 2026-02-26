@@ -11,21 +11,14 @@
 import SwiftUI
 
 struct ContentView: View {
-    
     @State var doggoImage: URL?
-    
     var body: some View {
-        
         VStack(spacing: 25) {
-            
-            // Image Card
             AsyncImage(url: doggoImage) { img in
-                
                 if let error = img.error {
                     Text("We have an error!")
                     Text("\(error.localizedDescription)")
                 }
-                
                 else if let image = img.image {
                     image
                         .resizable()
@@ -34,21 +27,12 @@ struct ContentView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .shadow(radius: 8)
                 }
-                
-                else {
-                    ProgressView()
-                        .frame(width: 250, height: 250)
-                }
             }
             
-            
-            // Title
             Text("Our Dog?")
                 .font(.largeTitle)
                 .fontWeight(.bold)
             
-            
-            // Button
             Button {
                 Task {
                     await loadDog()
@@ -59,24 +43,20 @@ struct ContentView: View {
                     .frame(width: 200, height: 50)
                     .cornerRadius(15)
                     .shadow(radius: 5)
-            } .padding()
+            }
             
-        }
+        }.padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
         
-        // Loads automatically on startup
+        
         .task {
             await loadDog()
         }
         
     }
     
-    
-    // Separate function for loading
     func loadDog() async {
         let ourData = await getServerData()
-        
         if let ourData = ourData {
             doggoImage = URL(string: ourData.message)
         }
@@ -85,21 +65,16 @@ struct ContentView: View {
     
     
     func getServerData() async -> ServerResponse? {
-        
         do {
-            
             guard let serverURL = URL(string: "https://dog.ceo/api/breeds/image/random") else {
                 return nil
             }
-            
             let (data, response) = try await URLSession.shared.data(from: serverURL)
-            
             guard let httpResponse = response as? HTTPURLResponse,
                   (200...299).contains(httpResponse.statusCode) else {
                 print("Bad status code")
                 return nil
             }
-            
             let decoded = try JSONDecoder().decode(ServerResponse.self, from: data)
             
             return decoded
@@ -111,14 +86,12 @@ struct ContentView: View {
         
         return nil
     }
-    
 }
 
 
 #Preview {
     ContentView()
 }
-
 
 struct ServerResponse: Codable {
     let message: String
